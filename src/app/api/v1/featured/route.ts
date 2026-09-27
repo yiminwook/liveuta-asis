@@ -59,5 +59,4 @@ export async function GET() {
   }
 }
 
-// 60초 마다 데이터 업데이트
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
