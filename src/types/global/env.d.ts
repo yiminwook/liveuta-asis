@@ -35,6 +35,7 @@ declare global {
       /** 미사용 */
       readonly HOLODEX_API_KEY: string;
 
+      readonly EXTERNAL_API_URL: string;
       readonly EXTERNAL_API_KEY: string;
     }
   }
