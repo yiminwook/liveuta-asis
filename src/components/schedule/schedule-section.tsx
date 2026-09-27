@@ -1,31 +1,34 @@
-'use client';
-import { Button, Loader } from '@mantine/core';
-import variable from '@variable';
-import { GridComponents, VirtuosoGrid } from 'react-virtuoso';
-import { toast } from 'sonner';
-import useMutateWhitelist from '@/hooks/use-delete-whitelist';
-import usePostBlacklist from '@/hooks/use-post-blacklist';
-import usePostWhitelist from '@/hooks/use-post-whitelist';
-import useReservePush from '@/hooks/use-reserve-push';
-import { useInfiniteScheduleData } from '@/hooks/use-schedule';
-import { Link } from '@/libraries/i18n';
-import { useLocale, useTranslations } from '@/libraries/i18n/client';
-import { TChannelDocumentWithoutId, TParsedClientContent } from '@/libraries/mongodb/type';
-import { generateVideoUrl } from '@/libraries/youtube/url';
-import { useSetModalStore } from '@/stores/modal';
-import { TScheduleDto } from '@/types/dto';
-import { gtagClick } from '@/utils/gtag';
-import { openWindow } from '@/utils/window-event';
-import Nodata from '../common/Nodata';
-import ScheduleCard from '../common/scheduleCard/card';
-import ScheduleCardSkeleton from '../common/scheduleCard/schedule-card-skeleton';
-import css from './ScheduleSection.module.scss';
+"use client";
+import { Button, Loader } from "@mantine/core";
+import variable from "@variable";
+import { GridComponents, VirtuosoGrid } from "react-virtuoso";
+import { toast } from "sonner";
+import useMutateWhitelist from "@/hooks/use-delete-whitelist";
+import usePostBlacklist from "@/hooks/use-post-blacklist";
+import usePostWhitelist from "@/hooks/use-post-whitelist";
+import useReservePush from "@/hooks/use-reserve-push";
+import { useInfiniteScheduleData } from "@/hooks/use-schedule";
+import { Link } from "@/libraries/i18n";
+import { useLocale, useTranslations } from "@/libraries/i18n/client";
+import {
+  TEndpointChannel,
+  TParsedClientContent,
+} from "@/libraries/endpoint/type";
+import { generateVideoUrl } from "@/libraries/youtube/url";
+import { useSetModalStore } from "@/stores/modal";
+import { TScheduleDto } from "@/types/dto";
+import { gtagClick } from "@/utils/gtag";
+import { openWindow } from "@/utils/window-event";
+import Nodata from "../common/Nodata";
+import ScheduleCard from "../common/scheduleCard/card";
+import ScheduleCardSkeleton from "../common/scheduleCard/schedule-card-skeleton";
+import css from "./ScheduleSection.module.scss";
 
 type ScheduleSectionProps = {
   session: TSession | null;
   scheduleDto: TScheduleDto;
   contents: TParsedClientContent[];
-  channelMap: Record<string, TChannelDocumentWithoutId>;
+  channelMap: Record<string, TEndpointChannel>;
   whiteListMap: Set<string>;
   isLoading?: boolean;
 };
@@ -59,15 +62,21 @@ export default function ScheduleSection({
     const email = session?.email;
 
     if (!email) {
-      toast.error(t('schedule.scheduleSection.notLoggedInError'));
+      toast.error(t("schedule.scheduleSection.notLoggedInError"));
       return;
     }
 
     const isFavorite = whiteListMap.has(content.channelId);
 
-    if (!isFavorite && confirm(t('schedule.scheduleSection.addFavoriteChannel'))) {
+    if (
+      !isFavorite &&
+      confirm(t("schedule.scheduleSection.addFavoriteChannel"))
+    ) {
       mutatePostFavorite.mutate({ channelId: content.channelId, email });
-    } else if (isFavorite && confirm(t('schedule.scheduleSection.removeFavoriteChannel'))) {
+    } else if (
+      isFavorite &&
+      confirm(t("schedule.scheduleSection.removeFavoriteChannel"))
+    ) {
       mutateDeleteFavorite.mutate({ channelId: content.channelId, email });
     }
   };
@@ -76,21 +85,21 @@ export default function ScheduleSection({
     const email = session?.email;
 
     if (!email) {
-      toast.error(t('schedule.scheduleSection.notLoggedInError'));
+      toast.error(t("schedule.scheduleSection.notLoggedInError"));
       return;
     }
 
-    if (confirm(t('schedule.scheduleSection.blockChannel'))) {
+    if (confirm(t("schedule.scheduleSection.blockChannel"))) {
       mutateBlock.mutate({ channelId: content.channelId, email });
     }
   };
 
   const openStream = (content: TParsedClientContent) => {
     gtagClick({
-      target: 'scheduleCard',
+      target: "scheduleCard",
       content: content.channelId,
       detail: content.title,
-      action: 'openWindow',
+      action: "openWindow",
     });
 
     openWindow(generateVideoUrl(content.videoId));
@@ -110,10 +119,10 @@ export default function ScheduleSection({
     );
   }
 
-  if (contents.length === 0 && scheduleDto.query.trim() !== '') {
+  if (contents.length === 0 && scheduleDto.query.trim() !== "") {
     // 검색 결과가 없을 때
     return (
-      <section style={{ marginBlock: '5rem' }}>
+      <section style={{ marginBlock: "5rem" }}>
         <Nodata />
         <div className={css.nodataLinkBox}>
           <Button
@@ -121,7 +130,7 @@ export default function ScheduleSection({
             href={`/channel?query-type=name&q=${scheduleDto.query}`}
             locale={locale}
           >
-            {t('schedule.scheduleSection.searchAtChannelPage')}
+            {t("schedule.scheduleSection.searchAtChannelPage")}
           </Button>
         </div>
       </section>
@@ -163,7 +172,9 @@ export default function ScheduleSection({
   );
 }
 
-const ScrollFooter: GridComponents<{ isLoading: boolean }>['Footer'] = ({ context }) => {
+const ScrollFooter: GridComponents<{ isLoading: boolean }>["Footer"] = ({
+  context,
+}) => {
   return (
     <div className={css.scrollFooter}>
       {context?.isLoading && <Loader color={variable.secondColorDefault} />}

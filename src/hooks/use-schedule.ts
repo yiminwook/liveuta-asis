@@ -1,18 +1,23 @@
-import { UseQueryResult, useIsFetching, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
-import { clientApi } from '@/apis/fetcher';
-import { SCHEDULE_CACHE_TIME, SCROLL_PER_YOUTUBE_CARD } from '@/constants';
-import { SCHEDULES_TAG } from '@/constants/revalidate-tag';
-import dayjs from '@/libraries/dayjs';
-import { useTranslations } from '@/libraries/i18n/client';
-import { TLocaleCode } from '@/libraries/i18n/type';
-import { TParsedClientContent } from '@/libraries/mongodb/type';
-import { StreamFilter } from '@/types';
-import { TGetScheduleResponse } from '@/types/api/schedule';
-import { waitfor } from '@/utils/helper';
-import { replaceParentheses } from '@/utils/regexp';
-import { getInterval } from '@/utils/time';
-import { useAutoSync } from './use-storage';
+import {
+  UseQueryResult,
+  useIsFetching,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { clientApi } from "@/apis/fetcher";
+import { SCHEDULE_CACHE_TIME, SCROLL_PER_YOUTUBE_CARD } from "@/constants";
+import { SCHEDULES_TAG } from "@/constants/revalidate-tag";
+import dayjs from "@/libraries/dayjs";
+import { useTranslations } from "@/libraries/i18n/client";
+import { TLocaleCode } from "@/libraries/i18n/type";
+import { TParsedClientContent } from "@/libraries/endpoint/type";
+import { StreamFilter } from "@/types";
+import { TGetScheduleResponse } from "@/types/api/schedule";
+import { waitfor } from "@/utils/helper";
+import { replaceParentheses } from "@/utils/regexp";
+import { getInterval } from "@/utils/time";
+import { useAutoSync } from "./use-storage";
 
 export function useScheduleQuery(arg: {
   filter: StreamFilter;
@@ -44,7 +49,7 @@ export function useScheduleQuery(arg: {
     queryKey: [SCHEDULES_TAG, arg.locale],
     queryFn: () =>
       clientApi
-        .get<TGetScheduleResponse>('v1/schedule')
+        .get<TGetScheduleResponse>("v1/schedule")
         .json()
         .then((res) => {
           const scheduled: TParsedClientContent[] = [];
@@ -52,7 +57,7 @@ export function useScheduleQuery(arg: {
           const daily: TParsedClientContent[] = [];
           const all: TParsedClientContent[] = [];
 
-          const yesterday = dayjs().subtract(1, 'day');
+          const yesterday = dayjs().subtract(1, "day");
 
           for (const item of res.data) {
             const parsedData: TParsedClientContent = {
@@ -61,24 +66,29 @@ export function useScheduleQuery(arg: {
               broadcastStatus: item.broadcastStatus,
               isHide: item.isHide,
               isVideo: item.isVideo,
-              tag: item.tag,
               // 가공된 데이터
               title: replaceParentheses(item.title),
-              viewer: Number(item.viewer),
+              viewer: item.viewer,
               utcTime: dayjs(item.utcTime),
               interval: getInterval(item.utcTime, t),
             };
 
-            if (parsedData.isHide === true && parsedData.broadcastStatus == 'NULL') {
+            if (
+              parsedData.isHide === true &&
+              parsedData.broadcastStatus == "NULL"
+            ) {
               // 취소여부 확인
-              parsedData.broadcastStatus = 'FALSE';
+              parsedData.broadcastStatus = "FALSE";
             }
 
-            if (parsedData.broadcastStatus === 'TRUE' || parsedData.broadcastStatus === 'NULL') {
+            if (
+              parsedData.broadcastStatus === "TRUE" ||
+              parsedData.broadcastStatus === "NULL"
+            ) {
               scheduled.push(parsedData);
             }
 
-            if (parsedData.broadcastStatus === 'TRUE') {
+            if (parsedData.broadcastStatus === "TRUE") {
               live.push(parsedData);
             }
 
@@ -116,7 +126,11 @@ export function useScheduleQuery(arg: {
   return query;
 }
 
-export const useInfiniteScheduleData = ({ rawData }: { rawData: TParsedClientContent[] }) => {
+export const useInfiniteScheduleData = ({
+  rawData,
+}: {
+  rawData: TParsedClientContent[];
+}) => {
   const [scrollPage, setScrollPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -147,7 +161,7 @@ export const useInfiniteScheduleData = ({ rawData }: { rawData: TParsedClientCon
 
 /** query observer가 없을때 undefined 반환 */
 export const useScheduleStatus = () => {
-  'use no memo';
+  "use no memo";
   const queryClient = useQueryClient();
   useIsFetching({ queryKey: [SCHEDULES_TAG] }); //리랜더링용
 

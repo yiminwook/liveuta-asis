@@ -1,6 +1,6 @@
-import { TStream } from '@/libraries/mongodb/type';
-import css from './card.module.scss';
-import CardViewer from './card-viewer';
+import { TStream } from "@/libraries/endpoint/type";
+import css from "./card.module.scss";
+import CardViewer from "./card-viewer";
 
 interface CardStatusProps {
   isStream: TStream;
@@ -8,10 +8,14 @@ interface CardStatusProps {
   viewer: number;
 }
 
-export default function CardStatus({ isStream, interval, viewer }: CardStatusProps) {
+export default function CardStatus({
+  isStream,
+  interval,
+  viewer,
+}: CardStatusProps) {
   return (
     <div className={css.statusBox}>
-      {isStream !== 'TRUE' ? interval : <CardViewer viewer={viewer} />}
+      {isStream !== "TRUE" ? interval : <CardViewer viewer={viewer} />}
     </div>
   );
 }

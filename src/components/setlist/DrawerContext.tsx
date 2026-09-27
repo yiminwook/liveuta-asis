@@ -1,18 +1,22 @@
-'use client';
-import { TChannelDocumentWithoutId } from '@/libraries/mongodb/type';
-import { Setlist } from '@/libraries/oracledb/setlist/service';
-import { ReactNode, createContext, use, useMemo, useState } from 'react';
+"use client";
+import { TEndpointChannel } from "@/libraries/endpoint/type";
+import { Setlist } from "@/libraries/oracledb/setlist/service";
+import { ReactNode, createContext, use, useMemo, useState } from "react";
 
 type SetlistDrawerActionContext = {
   onOpenChange: (value: boolean) => void;
-  open: (setlist: Setlist, thumbnailUrl: string, channel?: TChannelDocumentWithoutId) => void;
+  open: (
+    setlist: Setlist,
+    thumbnailUrl: string,
+    channel?: TEndpointChannel,
+  ) => void;
 };
 
 type SetlistDrawerContext = {
   open: boolean;
   setlist?: Setlist;
   thumbnailUrl?: string;
-  channel?: TChannelDocumentWithoutId;
+  channel?: TEndpointChannel;
 };
 
 // @ts-expect-error empty context
@@ -40,7 +44,11 @@ export function DrawerProvider({ children }: { children: ReactNode }) {
           open: value,
         });
       },
-      open: (setlist: Setlist, thumbnailUrl: string, channel?: TChannelDocumentWithoutId) => {
+      open: (
+        setlist: Setlist,
+        thumbnailUrl: string,
+        channel?: TEndpointChannel,
+      ) => {
         setDrawerContext({
           open: true,
           setlist,

@@ -1,23 +1,23 @@
-'use client';
-import { Button, ButtonGroup } from '@mantine/core';
-import clsx from 'clsx';
-import { useMemo } from 'react';
-import { toast } from 'sonner';
-import { Navigation, Pagination } from 'swiper/modules';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import RankingTable from '@/components/featured/RankingTable';
-import useCachedData from '@/hooks/use-cached-data';
-import useMutateWhitelist from '@/hooks/use-delete-whitelist';
-import { useMount } from '@/hooks/use-mount';
-import usePostBlacklist from '@/hooks/use-post-blacklist';
-import usePostWhitelist from '@/hooks/use-post-whitelist';
-import dayjs from '@/libraries/dayjs';
-import { useTranslations } from '@/libraries/i18n/client';
-import { TFeaturedDataAPIReturn } from '@/libraries/mongodb/type';
-import { useSession } from '@/stores/session';
-import { TYChannelsData } from '@/types/api/youtube';
-import { combineYTData } from '@/utils/combineChannelData-v2';
-import css from './page.module.scss';
+"use client";
+import { Button, ButtonGroup } from "@mantine/core";
+import clsx from "clsx";
+import { useMemo } from "react";
+import { toast } from "sonner";
+import { Navigation, Pagination } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import RankingTable from "@/components/featured/RankingTable";
+import useCachedData from "@/hooks/use-cached-data";
+import useMutateWhitelist from "@/hooks/use-delete-whitelist";
+import { useMount } from "@/hooks/use-mount";
+import usePostBlacklist from "@/hooks/use-post-blacklist";
+import usePostWhitelist from "@/hooks/use-post-whitelist";
+import dayjs from "@/libraries/dayjs";
+import { useTranslations } from "@/libraries/i18n/client";
+import { TFeaturedDataAPIReturn } from "@/libraries/endpoint/type";
+import { useSession } from "@/stores/session";
+import { TYChannelsData } from "@/types/api/youtube";
+import { combineYTData } from "@/utils/combineChannelData-v2";
+import css from "./page.module.scss";
 
 type Props = {
   featuredData: TFeaturedDataAPIReturn;
@@ -34,18 +34,18 @@ export default function Client({ featuredData }: Props) {
 
   const handleFavorite = (content: TYChannelsData) => {
     if (!session) {
-      toast.error(t('featured.notLoggedInError'));
+      toast.error(t("featured.notLoggedInError"));
       return;
     }
 
     const isFavorite = whiteListMap.has(content.uid);
 
-    if (!isFavorite && confirm(t('featured.addFavoriteChannel'))) {
+    if (!isFavorite && confirm(t("featured.addFavoriteChannel"))) {
       mutatePostFavorite.mutate({
         channelId: content.uid,
         email: session.email,
       });
-    } else if (isFavorite && confirm(t('featured.removeFavoriteChannel'))) {
+    } else if (isFavorite && confirm(t("featured.removeFavoriteChannel"))) {
       mutateDeleteFavorite.mutate({
         channelId: content.uid,
         email: session.email,
@@ -55,11 +55,11 @@ export default function Client({ featuredData }: Props) {
 
   const handleBlock = (content: TYChannelsData) => {
     if (!session) {
-      toast.error(t('featured.notLoggedInError'));
+      toast.error(t("featured.notLoggedInError"));
       return;
     }
 
-    if (confirm(t('featured.blockChannel'))) {
+    if (confirm(t("featured.blockChannel"))) {
       mutateBlock.mutate({ channelId: content.uid, email: session.email });
     }
   };
@@ -75,8 +75,8 @@ export default function Client({ featuredData }: Props) {
 
   return (
     <div className={css.container}>
-      <p className={clsx('essential', css.essential)}>
-        {t('featured.essential')}&nbsp;
+      <p className={clsx("essential", css.essential)}>
+        {t("featured.essential")}&nbsp;
         <TimeBox featuredData={featuredData} />
       </p>
       <div>
@@ -92,15 +92,15 @@ export default function Client({ featuredData }: Props) {
       <Swiper
         modules={[Navigation, Pagination]}
         navigation={{
-          nextEl: '.swiper-next',
-          prevEl: '.swiper-prev',
+          nextEl: ".swiper-next",
+          prevEl: ".swiper-prev",
         }}
         pagination={{ clickable: true }}
         className={css.swiper}
       >
         <SwiperSlide>
           <RankingTable
-            title={t('featured.topRating')}
+            title={t("featured.topRating")}
             data={combinedData.topRating}
             onFavorite={handleFavorite}
             onBlock={handleBlock}
@@ -108,7 +108,7 @@ export default function Client({ featuredData }: Props) {
         </SwiperSlide>
         <SwiperSlide>
           <RankingTable
-            title={t('featured.promising')}
+            title={t("featured.promising")}
             data={combinedData.promising}
             onFavorite={handleFavorite}
             onBlock={handleBlock}
@@ -124,5 +124,7 @@ function TimeBox({ featuredData }: { featuredData: TFeaturedDataAPIReturn }) {
 
   if (!isMounted) return null;
 
-  return <time>({dayjs(featuredData.lastUpdateAt).format('YYYY-MM-DD HH:mm')})</time>;
+  return (
+    <time>({dayjs(featuredData.lastUpdateAt).format("YYYY-MM-DD HH:mm")})</time>
+  );
 }

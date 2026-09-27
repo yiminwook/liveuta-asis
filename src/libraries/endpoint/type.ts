@@ -1,3 +1,10 @@
+import { ITEMS_PER_PAGE } from "@/constants";
+import type dayjs from "@/libraries/dayjs";
+import { CHANNEL_QUERY_TYPE, CHANNEL_SORT } from "@/types";
+import z from "zod";
+import { getChannelWithYoutube, parseChannel } from "./service";
+import { youtube_v3 } from "googleapis";
+
 export type TStream = "TRUE" | "NULL" | "FALSE";
 
 export const STREAM_STATUS_MAPPER = {
@@ -63,6 +70,59 @@ export interface TEndpointChannel {
   profile_picture_url: string;
 }
 
+export type TChannelRecord = Record<string, TEndpointChannel>;
+
+export type TParsedServerContent = {
+  title: string;
+  videoId: string;
+  channelId: string;
+  broadcastStatus: TStream;
+
+  viewer: number;
+  utcTime: Date;
+
+  // 가공된 데이터
+  isVideo: boolean;
+  isHide: boolean;
+};
+
+export type TParsedClientContent = {
+  videoId: string;
+  channelId: string;
+  broadcastStatus: TStream;
+  isHide: boolean;
+  isVideo: boolean;
+
+  // 가공된 데이터
+  title: string;
+  viewer: number;
+  utcTime: dayjs.Dayjs;
+  interval: string;
+};
+
+export type WaitingListItem = Pick<
+  TEndpointChannel,
+  "channel_addr" | "name_kor"
+>;
+
+export const channelDto = z.object({
+  query: z.string().nullish(),
+  queryType: z.enum(CHANNEL_QUERY_TYPE).nullish(),
+  page: z.preprocess((input) => Number(input ?? 1), z.number().int().min(1)),
+  size: z.preprocess(
+    (input) => Number(input ?? 1),
+    z.number().int().min(1).max(ITEMS_PER_PAGE),
+  ),
+  sort: z
+    .enum(CHANNEL_SORT)
+    .nullish()
+    .transform((value) => value || "name_kor"),
+});
+
+export type TChannelDto = z.infer<typeof channelDto>;
+export type TYChannelReturn = ReturnType<typeof getChannelWithYoutube>;
+export type ChannelDatesetItem = ReturnType<typeof parseChannel>;
+
 export type TEndpointSearchResponse = {
   data: TEndpointChannel[];
   meta: {
@@ -111,3 +171,15 @@ export interface TEndpointFeaturedResponse {
   /** @example: "2024-12-26T00:58:24.806153+09:00 */
   last_updated: string;
 }
+
+export type TFeaturedDataAPIReturn = {
+  lastUpdateAt: string;
+  topRating: youtube_v3.Schema$Channel[];
+  promising: youtube_v3.Schema$Channel[];
+};
+
+export type TContentLength = {
+  total: number;
+  video: number;
+  stream: number;
+};

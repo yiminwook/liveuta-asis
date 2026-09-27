@@ -1,4 +1,4 @@
-import { TParsedServerContent } from '@/libraries/mongodb/type';
+import { TParsedServerContent } from "@/libraries/endpoint/type";
 
 export type TGetScheduleResponse = {
   message: string;

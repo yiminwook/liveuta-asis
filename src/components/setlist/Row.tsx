@@ -1,32 +1,32 @@
 /* eslint-disable @next/next/no-img-element */
-'use client';
-import { useLocale, useTranslations } from '@/libraries/i18n/client';
-import { TChannelDocumentWithoutId } from '@/libraries/mongodb/type';
-import type { Setlist } from '@/libraries/oracledb/setlist/service';
-import { generateThumbnail } from '@/libraries/youtube/url';
-import { replaceParentheses } from '@/utils/regexp';
-import { useRouter } from '@bprogress/next';
-import { Table } from '@mantine/core';
-import clsx from 'clsx';
-import dayjs from 'dayjs';
-import { type MouseEvent } from 'react';
-import { useDrawerActions } from './DrawerContext';
-import css from './Table.module.scss';
+"use client";
+import { useLocale, useTranslations } from "@/libraries/i18n/client";
+import { TEndpointChannel } from "@/libraries/endpoint/type";
+import type { Setlist } from "@/libraries/oracledb/setlist/service";
+import { generateThumbnail } from "@/libraries/youtube/url";
+import { replaceParentheses } from "@/utils/regexp";
+import { useRouter } from "@bprogress/next";
+import { Table } from "@mantine/core";
+import clsx from "clsx";
+import dayjs from "dayjs";
+import { type MouseEvent } from "react";
+import { useDrawerActions } from "./DrawerContext";
+import css from "./Table.module.scss";
 
 type RowProps = {
   setlist: Setlist;
-  channel?: TChannelDocumentWithoutId;
-  order?: 'broadcast' | 'create';
+  channel?: TEndpointChannel;
+  order?: "broadcast" | "create";
 };
 
 export default function Row({ setlist, channel, order }: RowProps) {
   const router = useRouter();
   const locale = useLocale();
   const { t } = useTranslations();
-  const thumbnailUrl = generateThumbnail(setlist.videoId, 'mqdefault');
+  const thumbnailUrl = generateThumbnail(setlist.videoId, "mqdefault");
   const title = replaceParentheses(setlist.title);
-  const create = dayjs(setlist.createdAt).format(t('time.shortTemplate'));
-  const broad = dayjs(setlist.broadcastAt).format(t('time.shortTemplate'));
+  const create = dayjs(setlist.createdAt).format(t("time.shortTemplate"));
+  const broad = dayjs(setlist.broadcastAt).format(t("time.shortTemplate"));
   const drawerActions = useDrawerActions();
 
   const handleImageClick = (e: MouseEvent) => {

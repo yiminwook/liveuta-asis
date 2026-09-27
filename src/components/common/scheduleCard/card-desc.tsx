@@ -1,14 +1,18 @@
-import clsx from 'clsx';
-import { useTranslations } from '@/libraries/i18n/client';
-import { TChannelDocumentWithoutId, TParsedClientContent } from '@/libraries/mongodb/type';
-import { generateChannelUrl } from '@/libraries/youtube/url';
-import { openWindow } from '@/utils/window-event';
-import css from './card.module.scss';
-import CardStatus from './card-status';
+import clsx from "clsx";
+import { useTranslations } from "@/libraries/i18n/client";
+import {
+  TEndpointChannel,
+  TParsedClientContent,
+} from "@/libraries/endpoint/type";
+
+import { generateChannelUrl } from "@/libraries/youtube/url";
+import { openWindow } from "@/utils/window-event";
+import css from "./card.module.scss";
+import CardStatus from "./card-status";
 
 type CardDescProps = {
   content: TParsedClientContent;
-  channel: TChannelDocumentWithoutId | undefined;
+  channel: TEndpointChannel | undefined;
   addStreamModifier: string;
 };
 
@@ -17,8 +21,19 @@ type CardDescProps = {
  *
  * 채널명 1줄, 제목 2줄, 시간 1줄
  */
-export default function CardDesc({ content, addStreamModifier, channel }: CardDescProps) {
-  const { title, utcTime, interval, broadcastStatus: isStream, viewer, channelId } = content;
+export default function CardDesc({
+  content,
+  addStreamModifier,
+  channel,
+}: CardDescProps) {
+  const {
+    title,
+    utcTime,
+    interval,
+    broadcastStatus: isStream,
+    viewer,
+    channelId,
+  } = content;
 
   const channelUrl = generateChannelUrl(channelId);
   const { t } = useTranslations();
@@ -44,7 +59,7 @@ export default function CardDesc({ content, addStreamModifier, channel }: CardDe
         {title}
       </p>
       <div className={css.time}>
-        <time>{utcTime.format(t('time.longTemplate'))}</time>
+        <time>{utcTime.format(t("time.longTemplate"))}</time>
         <CardStatus isStream={isStream} interval={interval} viewer={viewer} />
       </div>
     </div>

@@ -1,14 +1,14 @@
-import { Divider } from '@mantine/core';
-import Image from 'next/image';
-import { notFound } from 'next/navigation';
-import { getChannelById, parseChannel } from '@/libraries/mongodb/channels';
-import { getSetlistByVideoId } from '@/libraries/oracledb/setlist/service';
-import character from '/public/assets/character-5-150.png';
-import Background from '../common/background/Background';
-import Desc from './desc';
-import css from './home.module.scss';
-import Info from './info';
-import SetlistPlayer from './setlist-player';
+import { Divider } from "@mantine/core";
+import Image from "next/image";
+import { notFound } from "next/navigation";
+import { getChannelById, parseChannel } from "@/libraries/endpoint/service";
+import { getSetlistByVideoId } from "@/libraries/oracledb/setlist/service";
+import character from "/public/assets/character-5-150.png";
+import Background from "../common/background/Background";
+import Desc from "./desc";
+import css from "./home.module.scss";
+import Info from "./info";
+import SetlistPlayer from "./setlist-player";
 
 interface HomeProps {
   params: {

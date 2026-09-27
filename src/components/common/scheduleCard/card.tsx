@@ -1,24 +1,24 @@
-'use client';
-import clsx from 'clsx';
-import { memo } from 'react';
+"use client";
+import clsx from "clsx";
+import { memo } from "react";
 import {
   STREAM_STATUS_MAPPER,
-  TChannelDocumentWithoutId,
+  TEndpointChannel,
   TParsedClientContent,
-} from '@/libraries/mongodb/type';
-import { generateVideoUrl } from '@/libraries/youtube/url';
-import css from './card.module.scss';
-import CardDesc from './card-desc';
-import CardImage from './card-image';
-import CardMenu from './card-menu';
+} from "@/libraries/endpoint/type";
+import { generateVideoUrl } from "@/libraries/youtube/url";
+import css from "./card.module.scss";
+import CardDesc from "./card-desc";
+import CardImage from "./card-image";
+import CardMenu from "./card-menu";
 
 type ScheduleCardProps = {
   classname?: string;
   content: TParsedClientContent;
-  channel: TChannelDocumentWithoutId | undefined;
+  channel: TEndpointChannel | undefined;
   session: TSession | null;
   isFavorite?: boolean;
-  addAlarm?: (item: TParsedClientContent, channel?: TChannelDocumentWithoutId) => void;
+  addAlarm?: (item: TParsedClientContent, channel?: TEndpointChannel) => void;
   openNewTab?: (item: TParsedClientContent) => void;
   toggleFavorite?: (item: TParsedClientContent) => void;
   addBlock?: (item: TParsedClientContent) => void;
@@ -54,7 +54,11 @@ function ScheduleCard_({
   return (
     <div className={clsx(css.card, addStreamModifier, classname)}>
       <CardImage content={content} />
-      <CardDesc content={content} channel={channel} addStreamModifier={addStreamModifier} />
+      <CardDesc
+        content={content}
+        channel={channel}
+        addStreamModifier={addStreamModifier}
+      />
       {showMenu && (
         <CardMenu
           isFavorite={isFavorite}

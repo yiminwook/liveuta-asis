@@ -1,11 +1,9 @@
-import { MONGODB_FEATURED_COLLECTION, MONGODB_MANAGEMENT_DB } from '@/constants';
-import CustomServerError from '@/libraries/error/customServerError';
-import errorHandler from '@/libraries/error/handler';
-import { connectMongoDB } from '@/libraries/mongodb';
-import { TFeaturedData } from '@/libraries/mongodb/type';
-import { getYoutubeChannels } from '@/libraries/youtube';
-import { youtube_v3 } from 'googleapis';
-import { NextResponse } from 'next/server';
+import CustomServerError from "@/libraries/error/customServerError";
+import errorHandler from "@/libraries/error/handler";
+import { getYoutubeChannels } from "@/libraries/youtube";
+import { youtube_v3 } from "googleapis";
+import { NextResponse } from "next/server";
+import { getFeaturedChannels } from "@/libraries/endpoint/service";
 
 // 원본 ID 배열 순서대로 정렬
 const sortByOriginalOrder = (
@@ -21,19 +19,21 @@ const MAX_CHANNEL_SIZE = 30;
 
 export async function GET() {
   try {
-    const db = await connectMongoDB(MONGODB_MANAGEMENT_DB, MONGODB_FEATURED_COLLECTION);
-
-    const featuredData = await db.findOne<TFeaturedData>(
-      {},
-      { projection: { _id: 0 }, sort: { last_updated: -1 } },
-    );
+    const featuredData = await getFeaturedChannels();
 
     if (!featuredData) {
-      throw new CustomServerError({ statusCode: 404, message: '문서를 찾을 수 없습니다.' });
+      throw new CustomServerError({
+        statusCode: 404,
+        message: "문서를 찾을 수 없습니다.",
+      });
     }
 
-    const copiedTopChannels = featuredData.top_channels.slice(0, MAX_CHANNEL_SIZE);
-    const copiedPromisingChannels = featuredData.promising.slice(0, MAX_CHANNEL_SIZE);
+    const copiedTopChannels = featuredData.top_channels
+      .slice(0, MAX_CHANNEL_SIZE)
+      .map((channel) => channel.channel_id);
+    const copiedPromisingChannels = featuredData.promising
+      .slice(0, MAX_CHANNEL_SIZE)
+      .map((channel) => channel.channel_id);
 
     const [topRating, promising] = await Promise.all([
       getYoutubeChannels(copiedTopChannels).then((res) =>
@@ -45,7 +45,7 @@ export async function GET() {
     ]);
 
     return NextResponse.json({
-      message: '특집 데이터가 조회되었습니다.',
+      message: "특집 데이터가 조회되었습니다.",
       data: {
         lastUpdateAt: featuredData.last_updated,
         topRating,

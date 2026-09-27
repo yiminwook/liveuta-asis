@@ -20,8 +20,13 @@ export const GET_CHANNELS = {
   paginated: "channels/paginated", // 채널 목록 (페이징)
   count: "channels/count", // 채널 개수
   waiting: "channels/waiting", // 채널 대기 목록
-  search: "channels/search?", // 채널 검색 sort=createdAt&direction=asc
+  search: "channels/search", // 채널 검색 sort=createdAt&direction=asc
 };
+
+export const CHANNEL_ORDER_MAP = {
+  createdAt: "desc", // 최신순
+  name_kor: "asc", // 이름순
+} as const;
 
 export const GET_FEATURED = {
   index: "featured", // 추천/주요 콘텐츠 조회

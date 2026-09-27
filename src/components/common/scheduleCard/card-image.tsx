@@ -1,14 +1,14 @@
-'use client';
-import Image from 'next/image';
-import { useCallback, useRef, useState } from 'react';
-import { isMobile } from 'react-device-detect';
-import { DEFAULT_BLUR_BASE64 } from '@/constants';
-import { useTranslations } from '@/libraries/i18n/client';
-import { TParsedClientContent } from '@/libraries/mongodb/type';
-import { generateThumbnail, generateVideoUrl } from '@/libraries/youtube/url';
-import { usePlayer } from '@/stores/player';
-import { gtagClick } from '@/utils/gtag';
-import altImage from '/public/assets/thumbnail_alt_img.png';
+"use client";
+import Image from "next/image";
+import { useCallback, useRef, useState } from "react";
+import { isMobile } from "react-device-detect";
+import { DEFAULT_BLUR_BASE64 } from "@/constants";
+import { useTranslations } from "@/libraries/i18n/client";
+import { TParsedClientContent } from "@/libraries/endpoint/type";
+import { generateThumbnail, generateVideoUrl } from "@/libraries/youtube/url";
+import { usePlayer } from "@/stores/player";
+import { gtagClick } from "@/utils/gtag";
+import altImage from "/public/assets/thumbnail_alt_img.png";
 
 interface CardImageProps {
   content: TParsedClientContent;
@@ -16,7 +16,7 @@ interface CardImageProps {
 
 export default function CardImage({ content }: CardImageProps) {
   const videoUrl = generateVideoUrl(content.videoId);
-  const thumbnailUrl = generateThumbnail(content.videoId, 'mqdefault');
+  const thumbnailUrl = generateThumbnail(content.videoId, "mqdefault");
   const [imgLoaded, setImgLoaded] = useState(true);
   const actions = usePlayer((state) => state.actions);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -32,8 +32,8 @@ export default function CardImage({ content }: CardImageProps) {
 
   const linkClickEvent = () => {
     gtagClick({
-      target: 'scheduleCard',
-      action: 'atag',
+      target: "scheduleCard",
+      action: "atag",
       content: content.channelId,
       detail: content.title,
     });
@@ -50,7 +50,7 @@ export default function CardImage({ content }: CardImageProps) {
       {imgLoaded ? (
         <Image
           src={thumbnailUrl ?? altImage}
-          alt={t('schedule.scheduleCard.thumbnail')}
+          alt={t("schedule.scheduleCard.thumbnail")}
           loading="lazy"
           ref={imgRef}
           onLoad={handleImgValidity}
@@ -63,7 +63,7 @@ export default function CardImage({ content }: CardImageProps) {
       ) : (
         <Image
           src={altImage}
-          alt={t('schedule.scheduleCard.thumbnail')}
+          alt={t("schedule.scheduleCard.thumbnail")}
           placeholder="blur"
           unoptimized
           fill

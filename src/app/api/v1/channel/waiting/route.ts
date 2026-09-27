@@ -1,7 +1,7 @@
-import errorHandler from '@/libraries/error/handler';
-import { getWaitingList } from '@/libraries/mongodb/channels';
-import type { WaitingListItem } from '@/libraries/mongodb/type';
-import { NextResponse } from 'next/server';
+import errorHandler from "@/libraries/error/handler";
+import { getWaitingChannels } from "@/libraries/endpoint/service";
+import type { WaitingListItem } from "@/libraries/endpoint/type";
+import { NextResponse } from "next/server";
 
 export type TGetChannelRes = {
   message: string;
@@ -10,8 +10,8 @@ export type TGetChannelRes = {
 
 export async function GET() {
   try {
-    const data = await getWaitingList();
-    return NextResponse.json({ message: '채널 목록을 조회했습니다.', data });
+    const data = await getWaitingChannels();
+    return NextResponse.json({ message: "채널 목록을 조회했습니다.", data });
   } catch (error) {
     console.error(error);
     const { status, message } = errorHandler(error);
@@ -19,4 +19,4 @@ export async function GET() {
   }
 }
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";

@@ -1,38 +1,37 @@
-import { MONGODB_SCHEDULE_COLLECTION, MONGODB_SCHEDULE_DB } from '@/constants';
-import CustomServerError from '@/libraries/error/customServerError';
-import errorHandler from '@/libraries/error/handler';
-import { connectMongoDB } from '@/libraries/mongodb';
-import { TContentDocument, TParsedServerContent } from '@/libraries/mongodb/type';
-import { TGetScheduleResponse } from '@/types/api/schedule';
-import { NextResponse } from 'next/server';
+import CustomServerError from "@/libraries/error/customServerError";
+import errorHandler from "@/libraries/error/handler";
+import { TGetScheduleResponse } from "@/types/api/schedule";
+import { NextResponse } from "next/server";
+import { getAllVideos } from "@/libraries/endpoint/service";
+import { TParsedServerContent } from "@/libraries/endpoint/type";
+import dayjs from "@/libraries/dayjs";
 
 export async function GET() {
   try {
-    const db = await connectMongoDB(MONGODB_SCHEDULE_DB, MONGODB_SCHEDULE_COLLECTION);
+    const scheduleData = await getAllVideos();
 
-    const scheduleDataRaw = await db
-      .find<Omit<TContentDocument, '_id'>>({}, { projection: { _id: 0 } })
-      .sort({ ScheduledTime: 1, ChannelName: 1 })
-      .toArray();
-
-    if (!scheduleDataRaw) {
-      throw new CustomServerError({ statusCode: 404, message: '문서를 찾을 수 없습니다.' });
+    if (!scheduleData) {
+      throw new CustomServerError({
+        statusCode: 404,
+        message: "데이터를 찾을 수 없습니다.",
+      });
     }
 
-    const parseScheduledData = scheduleDataRaw.map<TParsedServerContent>((raw) => ({
-      title: raw.Title,
-      videoId: raw.VideoId,
-      channelId: raw.ChannelId,
-      utcTime: raw.ScheduledTime,
-      broadcastStatus: raw.broadcastStatus,
-      isHide: raw.Hide === 'TRUE' ? true : false,
-      isVideo: raw.isVideo === 'TRUE' ? true : false,
-      viewer: raw.concurrentViewers,
-      tag: raw.tag || '',
-    }));
+    const parseScheduledData = scheduleData.map<TParsedServerContent>(
+      (raw) => ({
+        title: raw.Title,
+        videoId: raw.VideoId,
+        channelId: raw.ChannelId,
+        utcTime: dayjs(raw.ScheduledTime).toDate(),
+        broadcastStatus: raw.broadcastStatus,
+        isHide: raw.Hide === "TRUE" ? true : false,
+        isVideo: raw.isVideo === "TRUE" ? true : false,
+        viewer: raw.concurrentViewers,
+      }),
+    );
 
     return NextResponse.json<TGetScheduleResponse>({
-      message: '스케줄이 조회되었습니다.',
+      message: "스케줄이 조회되었습니다.",
       data: parseScheduledData,
     });
   } catch (error) {
@@ -42,4 +41,4 @@ export async function GET() {
   }
 }
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";

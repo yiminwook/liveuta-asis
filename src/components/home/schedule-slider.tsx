@@ -1,17 +1,23 @@
-'use client';
-import variable from '@variable';
-import { Pagination } from 'swiper/modules';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { TChannelDocumentWithoutId, TParsedClientContent } from '@/libraries/mongodb/type';
-import SliderCard from '../common/scheduleCard/slider-card';
-import SliderCardSkeleton from '../common/scheduleCard/slider-card-skeleton';
-import css from './schedule-slider.module.scss';
+"use client";
+import variable from "@variable";
+import { Pagination } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import {
+  TEndpointChannel,
+  TParsedClientContent,
+} from "@/libraries/endpoint/type";
+import SliderCard from "../common/scheduleCard/slider-card";
+import SliderCardSkeleton from "../common/scheduleCard/slider-card-skeleton";
+import css from "./schedule-slider.module.scss";
 
 type ScheduleSliderProps = {
   contents: (TParsedClientContent & { isFavorite: boolean })[];
-  channelMap: Record<string, TChannelDocumentWithoutId>;
+  channelMap: Record<string, TEndpointChannel>;
   isLoading?: boolean;
-  addAlarm?: (item: TParsedClientContent, channel: TChannelDocumentWithoutId | undefined) => void;
+  addAlarm?: (
+    item: TParsedClientContent,
+    channel: TEndpointChannel | undefined,
+  ) => void;
   openNewTab?: (item: TParsedClientContent) => void;
   toggleFavorite?: (item: TParsedClientContent) => void;
   addBlock?: (item: TParsedClientContent) => void;
@@ -46,7 +52,10 @@ export default function ScheduleSlider({
       >
         {Array.from({ length: 6 }).map((item, index) => {
           return (
-            <SwiperSlide key={`announce_placeholder_${index}`} className={css.item}>
+            <SwiperSlide
+              key={`announce_placeholder_${index}`}
+              className={css.item}
+            >
               <SliderCardSkeleton />
             </SwiperSlide>
           );
