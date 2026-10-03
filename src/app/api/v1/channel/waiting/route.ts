@@ -1,12 +1,6 @@
 import errorHandler from "@/libraries/error/handler";
 import { getWaitingChannels } from "@/libraries/endpoint/service";
-import type { WaitingListItem } from "@/libraries/endpoint/type";
 import { NextResponse } from "next/server";
-
-export type TGetChannelRes = {
-  message: string;
-  data: WaitingListItem[];
-};
 
 export async function GET() {
   try {

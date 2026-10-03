@@ -23,6 +23,11 @@ export const GET_CHANNELS = {
   search: "channels/search", // 채널 검색 sort=createdAt&direction=asc
 };
 
+export const POST_CHANNELS = {
+  checkDuplicates: "channels/check-duplicates",
+  requests: "channels/requests",
+};
+
 export const CHANNEL_ORDER_MAP = {
   createdAt: "desc", // 최신순
   name_kor: "asc", // 이름순

@@ -5,6 +5,12 @@ import z from "zod";
 import { getChannelWithYoutube, parseChannel } from "./service";
 import { youtube_v3 } from "googleapis";
 
+export type TContentLength = {
+  total: number;
+  video: number;
+  stream: number;
+};
+
 export type TStream = "TRUE" | "NULL" | "FALSE";
 
 export const STREAM_STATUS_MAPPER = {
@@ -70,6 +76,12 @@ export interface TEndpointChannel {
   profile_picture_url: string;
 }
 
+/** 등록대기 채널 */
+export type TWaitingList = {
+  name_kor: string;
+  channel_addr: string;
+};
+
 export type TChannelRecord = Record<string, TEndpointChannel>;
 
 export type TParsedServerContent = {
@@ -100,26 +112,6 @@ export type TParsedClientContent = {
   interval: string;
 };
 
-export type WaitingListItem = Pick<
-  TEndpointChannel,
-  "channel_addr" | "name_kor"
->;
-
-export const channelDto = z.object({
-  query: z.string().nullish(),
-  queryType: z.enum(CHANNEL_QUERY_TYPE).nullish(),
-  page: z.preprocess((input) => Number(input ?? 1), z.number().int().min(1)),
-  size: z.preprocess(
-    (input) => Number(input ?? 1),
-    z.number().int().min(1).max(ITEMS_PER_PAGE),
-  ),
-  sort: z
-    .enum(CHANNEL_SORT)
-    .nullish()
-    .transform((value) => value || "name_kor"),
-});
-
-export type TChannelDto = z.infer<typeof channelDto>;
 export type TYChannelReturn = ReturnType<typeof getChannelWithYoutube>;
 export type ChannelDatesetItem = ReturnType<typeof parseChannel>;
 
@@ -178,8 +170,85 @@ export type TFeaturedDataAPIReturn = {
   promising: youtube_v3.Schema$Channel[];
 };
 
-export type TContentLength = {
-  total: number;
-  video: number;
-  stream: number;
+export type TCheckDuplicatesBatchSuccessResult = {
+  url: string; // 요청한 URL
+  channelId: string; // 확인된 채널 ID
+  handle: string; // @handle (없으면 '')
+  channelTitle: string; // 채널 제목 (없으면 '')
+  existingName: string; // 중복일 때 기존 한글명, 없으면 ''
+  error: null;
+};
+
+export type TCheckDuplicatesBatchErrorResult = {
+  url: string; // 요청한 URL
+  channelId: null; // 실패이므로 null
+  handle: null; // 동일
+  channelTitle: null; // 동일
+  existingName: string; // 항상 '' (빈 문자열)
+  error: string; // 오류 코드: 'resolve_failed' 등
+};
+
+export type TCheckDuplicatesBatchResult =
+  | TCheckDuplicatesBatchSuccessResult
+  | TCheckDuplicatesBatchErrorResult;
+
+export type TRequestDuplicateCheckResult = {
+  results: TCheckDuplicatesBatchResult[];
+};
+
+export type TRequestsChannelsResult = {
+  inserted: number;
+};
+
+/////// API Request Types //////
+
+export const checkDuplicatesDto = z.object({
+  urls: z.array(z.string()),
+});
+
+export type TCheckDuplicatesDto = z.infer<typeof checkDuplicatesDto>;
+
+export const channelRequestDto = z.object({
+  channels: z.array(
+    z.object({
+      nameKor: z.string(),
+      channelId: z.string(),
+      handle: z.string(),
+    }),
+  ),
+});
+
+export type TChannelRequestDto = z.infer<typeof channelRequestDto>;
+
+export const channelDto = z.object({
+  query: z.string().nullish(),
+  queryType: z.enum(CHANNEL_QUERY_TYPE).nullish(),
+  page: z.preprocess((input) => Number(input ?? 1), z.number().int().min(1)),
+  size: z.preprocess(
+    (input) => Number(input ?? 1),
+    z.number().int().min(1).max(ITEMS_PER_PAGE),
+  ),
+  sort: z
+    .enum(CHANNEL_SORT)
+    .nullish()
+    .transform((value) => value || "name_kor"),
+});
+
+export type TChannelDto = z.infer<typeof channelDto>;
+
+/////// API Response Types //////
+
+export type TGetRegisteredChannelCountRes = {
+  message: string;
+  data: { count: number };
+};
+
+export type TGetChannelRes = {
+  message: string;
+  data: TEndpointChannel[];
+};
+
+export type TGetWaitingChannelRes = {
+  message: string;
+  data: TWaitingList[];
 };

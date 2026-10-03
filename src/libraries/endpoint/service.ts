@@ -6,6 +6,7 @@ import {
   GET_CHANNELS,
   GET_FEATURED,
   GET_VIDEOS,
+  POST_CHANNELS,
 } from "./config";
 import {
   TEndpointChannelMetaResponse,
@@ -14,6 +15,9 @@ import {
   TEndpointSearchResponse,
   TEndpointFeaturedResponse,
   TChannelDto,
+  TRequestDuplicateCheckResult,
+  TRequestsChannelsResult,
+  TWaitingList,
 } from "./type";
 import { addEscapeCharacter } from "@/utils/regexp";
 
@@ -32,7 +36,7 @@ export const getChannelById = (channelId: string) =>
     .json();
 
 export const getWaitingChannels = () =>
-  endpointApi.get<TEndpointChannel[]>(GET_CHANNELS.waiting).json();
+  endpointApi.get<TWaitingList[]>(GET_CHANNELS.waiting).json();
 
 export const getRegisteredChannelCount = () =>
   endpointApi.get<{ count: number }>(GET_CHANNELS.count).json();
@@ -110,3 +114,21 @@ export const parseChannel = (channel: TEndpointChannel | null) => ({
   nameKor: channel?.name_kor || "no data",
   // handleName: channel?.handle_name || '',
 });
+
+export const checkDuplicatesChannels = (args: { urls: string[] }) =>
+  endpointApi
+    .post<TRequestDuplicateCheckResult>(POST_CHANNELS.checkDuplicates, {
+      json: args,
+    })
+    .json();
+
+export const requestsChannels = (args: {
+  channels: {
+    nameKor: string;
+    channelId: string;
+    handle: string;
+  }[];
+}) =>
+  endpointApi
+    .post<TRequestsChannelsResult>(POST_CHANNELS.requests, { json: args })
+    .json();

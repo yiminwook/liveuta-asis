@@ -1,18 +1,18 @@
-import path from 'node:path';
-import NextBundleAnalyzer from '@next/bundle-analyzer';
-import { SentryBuildOptions, withSentryConfig } from '@sentry/nextjs';
-import type { NextConfig } from 'next';
+import path from "node:path";
+import NextBundleAnalyzer from "@next/bundle-analyzer";
+import { SentryBuildOptions, withSentryConfig } from "@sentry/nextjs";
+import type { NextConfig } from "next";
 
 // const isDevelopment = process.env.NODE_ENV !== 'production';
 
 const withBundleAnalyzer = NextBundleAnalyzer({
-  enabled: process.env.NODE_ENV === 'production',
-  analyzerMode: 'static',
+  enabled: process.env.NODE_ENV === "production",
+  analyzerMode: "static",
   openAnalyzer: false,
 });
 
 const nextConfig: NextConfig = {
-  output: process.env.ENABLE_STANDALONE === 'true' ? 'standalone' : undefined,
+  output: process.env.ENABLE_STANDALONE === "true" ? "standalone" : undefined,
   eslint: {
     // Warning: This allows production builds to successfully complete even if
     // your project has ESLint errors.
@@ -30,13 +30,13 @@ const nextConfig: NextConfig = {
     // },
   },
   sassOptions: {
-    includePaths: [path.join(__dirname, 'src', 'styles')], // style 폴더에 있는 파일은 이름만으로 import 가능(경로 축약)
+    includePaths: [path.join(__dirname, "src", "styles")], // style 폴더에 있는 파일은 이름만으로 import 가능(경로 축약)
     prependData: `
       @use "var";
       @use "util";
       @use "placeholder";
     `, // 위 파일은 import 하지 않아도 된다.
-    silenceDeprecations: ['legacy-js-api'], // sass warning 제거
+    silenceDeprecations: ["legacy-js-api"], // sass warning 제거
     logger: {
       warn: (message: any) => console.warn(message),
       debug: (message: any) => console.log(message),
@@ -46,8 +46,8 @@ const nextConfig: NextConfig = {
     unoptimized: true,
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: '*.ytimg.com',
+        protocol: "https",
+        hostname: "*.ytimg.com",
       },
     ],
   },
@@ -59,10 +59,10 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/api/:path*',
+        source: "/api/:path*",
         headers: [
           {
-            key: 'Access-Control-Allow-Origin',
+            key: "Access-Control-Allow-Origin",
             value: process.env.NEXT_PUBLIC_SITE_URL,
           },
         ],
@@ -71,10 +71,11 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
-      {
-        source: '/proxy/append-new-vchan/:path*',
-        destination: 'https://append-new-vchan.vercel.app/api/:path*',
-      },
+      // 이전되었음.
+      // {
+      //   source: '/proxy/append-new-vchan/:path*',
+      //   destination: 'https://append-new-vchan.vercel.app/api/:path*',
+      // },
     ];
   },
   webpack: (config, { isServer }) => {
@@ -91,17 +92,19 @@ const nextConfig: NextConfig = {
      **/
     config.externals.push(
       ...[
-        '@azure/app-configuration',
-        '@azure/identity',
-        '@azure/keyvault-secrets',
-        'oci-common',
-        'oci-objectstorage',
-        'oci-secrets',
+        "@azure/app-configuration",
+        "@azure/identity",
+        "@azure/keyvault-secrets",
+        "oci-common",
+        "oci-objectstorage",
+        "oci-secrets",
       ],
     );
 
     /** SVGR **/
-    const fileLoaderRule = config.module.rules.find((rule: any) => rule.test?.test?.('.svg'));
+    const fileLoaderRule = config.module.rules.find((rule: any) =>
+      rule.test?.test?.(".svg"),
+    );
     fileLoaderRule.exclude = /\.svg$/i;
     config.module.rules.push(
       {
@@ -115,7 +118,7 @@ const nextConfig: NextConfig = {
         resourceQuery: { not: [...fileLoaderRule.resourceQuery.not, /url/] }, // exclude if *.svg?url
         use: [
           {
-            loader: '@svgr/webpack',
+            loader: "@svgr/webpack",
             options: {
               svgo: false, // viewBox 유지
             },
@@ -129,16 +132,16 @@ const nextConfig: NextConfig = {
       // next server build => ignore msw/browser
       if (Array.isArray(config.resolve.alias)) {
         // in Next the type is always object, so this branch isn't necessary. But to keep TS happy, avoid @ts-ignore and prevent possible future breaking changes it's good to have it
-        config.resolve.alias.push({ name: 'msw/browser', alias: false });
+        config.resolve.alias.push({ name: "msw/browser", alias: false });
       } else {
-        config.resolve.alias['msw/browser'] = false;
+        config.resolve.alias["msw/browser"] = false;
       }
     } else {
       // browser => ignore msw/node
       if (Array.isArray(config.resolve.alias)) {
-        config.resolve.alias.push({ name: 'msw/node', alias: false });
+        config.resolve.alias.push({ name: "msw/node", alias: false });
       } else {
-        config.resolve.alias['msw/node'] = false;
+        config.resolve.alias["msw/node"] = false;
       }
     }
 
@@ -147,16 +150,17 @@ const nextConfig: NextConfig = {
   experimental: {
     authInterrupts: true, // 401, 403
     reactCompiler: true,
-    optimizePackageImports: ['@mantine/core', '@mantine/hooks'], // tree shaking
+    optimizePackageImports: ["@mantine/core", "@mantine/hooks"], // tree shaking
   },
 };
 
-const isEnableSentry = !!process.env.NEXT_PUBLIC_SENTRY_DSN && !!process.env.SENTRY_AUTH_TOKEN;
+const isEnableSentry =
+  !!process.env.NEXT_PUBLIC_SENTRY_DSN && !!process.env.SENTRY_AUTH_TOKEN;
 
 const SENTRY_BUILD_OPTIONS: SentryBuildOptions = {
   silent: !isEnableSentry, // Can be used to suppress logs
-  org: 'yisp',
-  project: 'liveuta',
+  org: "yisp",
+  project: "liveuta",
   authToken: process.env.SENTRY_AUTH_TOKEN,
   telemetry: false, // Sentry 서비스 개선에 활용되지 않도록 설정
   autoInstrumentMiddleware: false,
@@ -167,4 +171,7 @@ const SENTRY_BUILD_OPTIONS: SentryBuildOptions = {
   },
 };
 
-export default withSentryConfig(withBundleAnalyzer(nextConfig), SENTRY_BUILD_OPTIONS);
+export default withSentryConfig(
+  withBundleAnalyzer(nextConfig),
+  SENTRY_BUILD_OPTIONS,
+);

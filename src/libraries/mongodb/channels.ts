@@ -4,11 +4,7 @@ import { combineChannelData } from "@/utils/combineChannelData";
 import { addEscapeCharacter } from "@/utils/regexp";
 import { Document, Filter } from "mongodb";
 import { connectMongoDB } from ".";
-import {
-  TChannelDto,
-  TEndpointChannel,
-  WaitingListItem,
-} from "../endpoint/type";
+import { TChannelDto, TEndpointChannel } from "../endpoint/type";
 
 export const CHANNEL_ORDER_MAP = {
   createdAt: -1, // 최신순
@@ -119,7 +115,7 @@ export async function getWaitingList() {
     MONGODB_CHANNEL_COLLECTION,
   );
   const channels = await db
-    .find<WaitingListItem>(
+    .find<TEndpointChannel>(
       { waiting: true },
       {
         projection: {

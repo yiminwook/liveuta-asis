@@ -1,9 +1,13 @@
-'use client';
-import { TGetChannelRes } from '@api/v1/channel/route';
-import { useQueries } from '@tanstack/react-query';
-import { useMemo } from 'react';
-import { clientApi } from '@/apis/fetcher';
-import { BLACKLIST_TAG, CHANNELS_TAG, WHITELIST_TAG } from '@/constants/revalidate-tag';
+"use client";
+import { useQueries } from "@tanstack/react-query";
+import { useMemo } from "react";
+import { clientApi } from "@/apis/fetcher";
+import {
+  BLACKLIST_TAG,
+  CHANNELS_TAG,
+  WHITELIST_TAG,
+} from "@/constants/revalidate-tag";
+import { TGetChannelRes } from "@/libraries/endpoint/type";
 
 type LayoutDataObserverProps = {
   session: TSession | null;
@@ -16,7 +20,7 @@ const useCachedData = (args: LayoutDataObserverProps) => {
         queryKey: [CHANNELS_TAG],
         queryFn: () =>
           clientApi
-            .get<TGetChannelRes>('v1/channel')
+            .get<TGetChannelRes>("v1/channel")
             .json()
             .then((json) => json.data),
         gcTime: Infinity,
@@ -25,7 +29,7 @@ const useCachedData = (args: LayoutDataObserverProps) => {
         queryKey: [BLACKLIST_TAG, args.session?.email],
         queryFn: () =>
           clientApi
-            .get<{ message: string; data: string[] }>('v1/blacklist')
+            .get<{ message: string; data: string[] }>("v1/blacklist")
             .json()
             .then((json) => json.data),
         enabled: !!args.session,
@@ -35,7 +39,7 @@ const useCachedData = (args: LayoutDataObserverProps) => {
         queryKey: [WHITELIST_TAG, args.session?.email],
         queryFn: () =>
           clientApi
-            .get<{ message: string; data: string[] }>('v1/whitelist')
+            .get<{ message: string; data: string[] }>("v1/whitelist")
             .json()
             .then((json) => json.data),
         enabled: !!args.session,

@@ -2,11 +2,6 @@ import { getRegisteredChannelCount } from "@/libraries/endpoint/service";
 import errorHandler from "@/libraries/error/handler";
 import { NextResponse } from "next/server";
 
-export type TGetRegisteredChannelCountRes = {
-  message: string;
-  data: number;
-};
-
 export async function GET() {
   try {
     const data = await getRegisteredChannelCount();
