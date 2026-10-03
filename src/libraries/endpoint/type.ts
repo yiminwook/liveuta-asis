@@ -1,9 +1,9 @@
-import { ITEMS_PER_PAGE } from "@/constants";
-import type dayjs from "@/libraries/dayjs";
-import { CHANNEL_QUERY_TYPE, CHANNEL_SORT } from "@/types";
-import z from "zod";
-import { getChannelWithYoutube, parseChannel } from "./service";
-import { youtube_v3 } from "googleapis";
+import { ITEMS_PER_PAGE } from '@/constants';
+import type dayjs from '@/libraries/dayjs';
+import { CHANNEL_QUERY_TYPE, CHANNEL_SORT } from '@/types';
+import z from 'zod';
+import { getChannelWithYoutube, parseChannel } from './service';
+import { youtube_v3 } from 'googleapis';
 
 export type TContentLength = {
   total: number;
@@ -11,12 +11,12 @@ export type TContentLength = {
   stream: number;
 };
 
-export type TStream = "TRUE" | "NULL" | "FALSE";
+export type TStream = 'TRUE' | 'NULL' | 'FALSE';
 
 export const STREAM_STATUS_MAPPER = {
-  TRUE: "stream",
-  FALSE: "closed",
-  NULL: "scheduled",
+  TRUE: 'stream',
+  FALSE: 'closed',
+  NULL: 'scheduled',
 } as const;
 
 /**
@@ -39,11 +39,11 @@ export interface TEndpointVideo {
   Title: string;
   ChannelName: string;
   ChannelId: string;
-  isVideo: "TRUE" | "FALSE";
+  isVideo: 'TRUE' | 'FALSE';
   ScheduledTime: string;
   thumbnail_url: string;
   broadcastStatus: TStream;
-  Hide: "TRUE" | "FALSE";
+  Hide: 'TRUE' | 'FALSE';
   concurrentViewers: number;
 }
 
@@ -77,7 +77,7 @@ export interface TEndpointChannel {
 }
 
 /** 등록대기 채널 */
-export type TWaitingList = {
+export type TWaitingListItem = {
   name_kor: string;
   channel_addr: string;
 };
@@ -224,14 +224,11 @@ export const channelDto = z.object({
   query: z.string().nullish(),
   queryType: z.enum(CHANNEL_QUERY_TYPE).nullish(),
   page: z.preprocess((input) => Number(input ?? 1), z.number().int().min(1)),
-  size: z.preprocess(
-    (input) => Number(input ?? 1),
-    z.number().int().min(1).max(ITEMS_PER_PAGE),
-  ),
+  size: z.preprocess((input) => Number(input ?? 1), z.number().int().min(1).max(ITEMS_PER_PAGE)),
   sort: z
     .enum(CHANNEL_SORT)
     .nullish()
-    .transform((value) => value || "name_kor"),
+    .transform((value) => value || 'name_kor'),
 });
 
 export type TChannelDto = z.infer<typeof channelDto>;
@@ -250,5 +247,5 @@ export type TGetChannelRes = {
 
 export type TGetWaitingChannelRes = {
   message: string;
-  data: TWaitingList[];
+  data: TWaitingListItem[];
 };

@@ -1,10 +1,10 @@
-import "server-only";
-import { MONGODB_CHANNEL_COLLECTION, MONGODB_MANAGEMENT_DB } from "@/constants";
-import { combineChannelData } from "@/utils/combineChannelData";
-import { addEscapeCharacter } from "@/utils/regexp";
-import { Document, Filter } from "mongodb";
-import { connectMongoDB } from ".";
-import { TChannelDto, TEndpointChannel } from "../endpoint/type";
+import 'server-only';
+import { MONGODB_CHANNEL_COLLECTION, MONGODB_MANAGEMENT_DB } from '@/constants';
+import { combineChannelData } from '@/utils/combineChannelData';
+import { addEscapeCharacter } from '@/utils/regexp';
+import { Document, Filter } from 'mongodb';
+import { connectMongoDB } from '.';
+import { TChannelDto, TEndpointChannel, TWaitingListItem } from '../endpoint/type';
 
 export const CHANNEL_ORDER_MAP = {
   createdAt: -1, // 최신순
@@ -12,10 +12,7 @@ export const CHANNEL_ORDER_MAP = {
 } as const;
 
 export const getChannelById = async (channel_id: string) => {
-  const db = await connectMongoDB(
-    MONGODB_MANAGEMENT_DB,
-    MONGODB_CHANNEL_COLLECTION,
-  );
+  const db = await connectMongoDB(MONGODB_MANAGEMENT_DB, MONGODB_CHANNEL_COLLECTION);
   const channel = await db.findOne<TEndpointChannel>({ channel_id });
   return channel;
 };
@@ -23,10 +20,7 @@ export const getChannelById = async (channel_id: string) => {
 export const getAllChannel = async (dto: TChannelDto) => {
   const direction = CHANNEL_ORDER_MAP[dto.sort];
 
-  const db = await connectMongoDB(
-    MONGODB_MANAGEMENT_DB,
-    MONGODB_CHANNEL_COLLECTION,
-  );
+  const db = await connectMongoDB(MONGODB_MANAGEMENT_DB, MONGODB_CHANNEL_COLLECTION);
   const channels = await db
     .find<TEndpointChannel>({ waiting: false }, { projection: { _id: 0 } })
     .sort(dto.sort, direction)
@@ -39,7 +33,7 @@ export const getChannelWithYoutube = async (dto: TChannelDto) => {
   const { sort, size, page, query, queryType } = dto;
   const direction = CHANNEL_ORDER_MAP[sort];
 
-  const safeQuery = addEscapeCharacter((query || "").trim());
+  const safeQuery = addEscapeCharacter((query || '').trim());
 
   const regexForDBQuery: Filter<Document> = {
     $or: [],
@@ -47,20 +41,20 @@ export const getChannelWithYoutube = async (dto: TChannelDto) => {
   };
 
   switch (queryType) {
-    case "name":
+    case 'name':
       regexForDBQuery.$or!.push(
-        { names: { $regex: safeQuery, $options: "i" } },
-        { name_kor: { $regex: safeQuery, $options: "i" } },
+        { names: { $regex: safeQuery, $options: 'i' } },
+        { name_kor: { $regex: safeQuery, $options: 'i' } },
       );
       break;
-    case "handle":
+    case 'handle':
       regexForDBQuery.$or!.push({
-        handle_name: { $regex: safeQuery, $options: "i" },
+        handle_name: { $regex: safeQuery, $options: 'i' },
       });
       break;
-    case "channelId":
+    case 'channelId':
       regexForDBQuery.$or!.push({
-        channel_id: { $regex: safeQuery, $options: "i" },
+        channel_id: { $regex: safeQuery, $options: 'i' },
       });
       break;
   }
@@ -68,10 +62,7 @@ export const getChannelWithYoutube = async (dto: TChannelDto) => {
   const skip = (page - 1) * size;
   const filter = !!query ? regexForDBQuery : { waiting: false };
 
-  const db = await connectMongoDB(
-    MONGODB_MANAGEMENT_DB,
-    MONGODB_CHANNEL_COLLECTION,
-  );
+  const db = await connectMongoDB(MONGODB_MANAGEMENT_DB, MONGODB_CHANNEL_COLLECTION);
 
   const channels = await db
     .find<TEndpointChannel>(filter, {
@@ -85,13 +76,10 @@ export const getChannelWithYoutube = async (dto: TChannelDto) => {
   const total = await db.countDocuments(filter);
   const totalPage = Math.ceil(total / size);
 
-  const channelRecord = channels.reduce<Record<string, TEndpointChannel>>(
-    (acc, curr) => {
-      acc[curr.channel_id] = { ...curr };
-      return acc;
-    },
-    {},
-  );
+  const channelRecord = channels.reduce<Record<string, TEndpointChannel>>((acc, curr) => {
+    acc[curr.channel_id] = { ...curr };
+    return acc;
+  }, {});
 
   const combinedChannelContents = await combineChannelData(channelRecord, {
     sort: sort,
@@ -101,21 +89,15 @@ export const getChannelWithYoutube = async (dto: TChannelDto) => {
 };
 
 export async function getRegisteredChannelCount() {
-  const db = await connectMongoDB(
-    MONGODB_MANAGEMENT_DB,
-    MONGODB_CHANNEL_COLLECTION,
-  );
+  const db = await connectMongoDB(MONGODB_MANAGEMENT_DB, MONGODB_CHANNEL_COLLECTION);
   const count = await db.countDocuments({ waiting: false });
   return count;
 }
 
 export async function getWaitingList() {
-  const db = await connectMongoDB(
-    MONGODB_MANAGEMENT_DB,
-    MONGODB_CHANNEL_COLLECTION,
-  );
+  const db = await connectMongoDB(MONGODB_MANAGEMENT_DB, MONGODB_CHANNEL_COLLECTION);
   const channels = await db
-    .find<TEndpointChannel>(
+    .find<TWaitingListItem>(
       { waiting: true },
       {
         projection: {
